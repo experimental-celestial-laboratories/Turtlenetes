@@ -2,36 +2,32 @@ local HOSTNAME = "test_host"
 local PROTOCOL = "t8s_server"
 local CLIENT_PROTOCOL = "t8s_client"
 
-local modem = peripheral.find("modem") or error"no modem attached"
+local modem = peripheral.find("modem") or error "no modem attached"
 rednet.open(peripheral.getName(modem))
-rednet.host(PROTOCOL,HOSTNAME)
+rednet.host(PROTOCOL, HOSTNAME)
 
 -- TODO: filter out clients so we do not accidentally use another person's turtles
 local function getClients()
-  return {rednet.lookup(CLIENT_PROTOCOL)}
+  return { rednet.lookup(CLIENT_PROTOCOL) }
 end
 
 -- installs client.lua as startup.lua along with main.lua
 local function installClientOnDrive()
   while true do
-    for i,drive in ipairs{peripheral.find"drive"} do
+    for i, drive in ipairs { peripheral.find "drive" } do
       local mountPath = drive.getMountPath()
       if mountPath then
-
-        local driveStartupPath = mountPath..'/'.."startup.lua"
+        local driveStartupPath = mountPath .. '/' .. "startup.lua"
         fs.delete(driveStartupPath)
-        fs.copy("client.lua",driveStartupPath)
+        fs.copy("client/client.lua", driveStartupPath)
 
-        local driveMainPath = mountPath..'/'.."main.lua"
-        if fs.exists("main.lua") then
-          fs.delete(driveMainPath)
-          fs.copy("main.lua",driveMainPath)
-          
-        end
+        local driveigpsPath = mountPath .. '/' .. "igps.lua"
+        fs.delete(driveigpsPath)
+        fs.copy("client/igps.lua", driveigpsPath)
       end
     end
-    sleep(0.2)
   end
+  sleep(0.2)
 end
 
 -- {functionName = "ping"}
@@ -45,9 +41,9 @@ end
 local function loop()
   local history = {}
   while true do
-    local input = read(nil,history)
-    history[#history+1] = input
-    for _,clientID in ipairs(getClients()) do
+    local input = read(nil, history)
+    history[#history + 1] = input
+    for _, clientID in ipairs(getClients()) do
       local senderID, message = callClientfunction(clientID, nil, textutils.unserialise(input))
       print(textutils.serialise(message))
     end
@@ -55,4 +51,4 @@ local function loop()
   end
 end
 
-parallel.waitForAny(installClientOnDrive,loop)
+parallel.waitForAny(installClientOnDrive, loop)

@@ -1,5 +1,7 @@
 if not turtle then error"Turtlenetes client can only be installed on a turtle" end
 
+local igps = require("igps")
+
 local HOSTNAME = "test_host"
 local PROTOCOL = "t8s_client"
 local SERVER_PROTOCOL = "t8s_server"
